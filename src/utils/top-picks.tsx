@@ -179,7 +179,7 @@ const getCachedTopPicks = unstable_cache(
                 venue: item.venue,
                 performers: item.performers,
                 date: item.localDate,
-                time: item.timeTbd ? "TBD" : item.utcDate,
+                time: item.timeTbd ? "TBD" : item.localDate,
                 similarProductionCount: item.similarProductionCount
             }
         })
