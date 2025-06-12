@@ -84,7 +84,6 @@ function getDateRange(filter: string) {
 }
 
 export default async function TopPicksServer({ 
-  location = "New York, NY",
   searchParams
 }: TopPicksServerProps) {
   const resolvedSearchParams = await searchParams
@@ -94,6 +93,9 @@ export default async function TopPicksServer({
   const headerList = await headers();
   const lat = parseFloat(headerList.get("x-vercel-ip-latitude") || "40.76");
   const lon = parseFloat(headerList.get("x-vercel-ip-longitude") || "-73.99");
+  const city = headerList.get("x-vercel-ip-city") || "New York"
+  const state = headerList.get("x-vercel-ip-state") || "NY";
+  const location = `${city}, ${state}`
 
   // Handle "explore" filter as "Any Dates" for data fetching
   const effectiveFilter = timeFilter === "explore" ? "Any Dates" : timeFilter;

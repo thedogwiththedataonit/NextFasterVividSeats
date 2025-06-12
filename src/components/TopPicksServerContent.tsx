@@ -13,15 +13,15 @@ const LargeEventCard: React.FC<{ event: ProductionCard }> = ({ event }) => {
   const formatDate = (dateString: string) => {
     const cleanDateString = dateString.replace(/\[.*?\]$/, '');
     const date = new Date(cleanDateString);
-    
+
     if (isNaN(date.getTime())) {
       return 'TBD';
     }
-    
-    return date.toLocaleDateString('en-US', { 
+
+    return date.toLocaleDateString('en-US', {
       weekday: 'short',
-      month: 'short', 
-      day: 'numeric' 
+      month: 'short',
+      day: 'numeric'
     });
   };
 
@@ -30,15 +30,15 @@ const LargeEventCard: React.FC<{ event: ProductionCard }> = ({ event }) => {
     try {
       const cleanTimeString = timeString.replace(/\[.*?\]$/, '');
       const date = new Date(cleanTimeString);
-      
+
       if (isNaN(date.getTime())) {
         return 'TBD';
       }
-      
-      return date.toLocaleTimeString('en-US', { 
-        hour: 'numeric', 
+
+      return date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
         minute: '2-digit',
-        hour12: true 
+        hour12: true
       });
     } catch {
       return 'TBD';
@@ -85,15 +85,15 @@ const SmallEventCard: React.FC<{ event: ProductionCard }> = ({ event }) => {
   const formatDate = (dateString: string) => {
     const cleanDateString = dateString.replace(/\[.*?\]$/, '');
     const date = new Date(cleanDateString);
-    
+
     if (isNaN(date.getTime())) {
       return 'TBD';
     }
-    
-    return date.toLocaleDateString('en-US', { 
+
+    return date.toLocaleDateString('en-US', {
       weekday: 'short',
-      month: 'short', 
-      day: 'numeric' 
+      month: 'short',
+      day: 'numeric'
     });
   };
 
@@ -102,15 +102,15 @@ const SmallEventCard: React.FC<{ event: ProductionCard }> = ({ event }) => {
     try {
       const cleanTimeString = timeString.replace(/\[.*?\]$/, '');
       const date = new Date(cleanTimeString);
-      
+
       if (isNaN(date.getTime())) {
         return 'TBD';
       }
-      
-      return date.toLocaleTimeString('en-US', { 
-        hour: 'numeric', 
+
+      return date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
         minute: '2-digit',
-        hour12: true 
+        hour12: true
       });
     } catch {
       return 'TBD';
@@ -143,10 +143,10 @@ const SmallEventCard: React.FC<{ event: ProductionCard }> = ({ event }) => {
   );
 };
 
-export default function TopPicksServerContent({ 
-  topPicks, 
-  location, 
-  activeFilter 
+export default function TopPicksServerContent({
+  topPicks,
+  location,
+  activeFilter
 }: TopPicksServerContentProps) {
   const timeFilters = [
     { label: "Explore", value: "explore" },
@@ -169,14 +169,14 @@ export default function TopPicksServerContent({
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
           <h2 className="text-3xl font-extrabold tracking-tight text-foreground">
-            Our top picks in{" "}
-            <span className="text-primary">{location}</span>
-            <svg className="inline w-6 h-6 ml-2" fill="currentColor" viewBox="0 0 20 20">
+            <p>Our top picks in{" "}</p>
+            <p className="text-primary">{location} <svg className="inline w-6 h-6 ml-2" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
+            </svg></p>
+
           </h2>
         </div>
-        <button className="text-foreground font-semibold hover:text-primary flex items-center">
+        <button className="hidden sm:flex text-foreground font-semibold hover:text-primary flex items-center">
           Find More Events
           <svg className="ml-2 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -185,20 +185,19 @@ export default function TopPicksServerContent({
       </div>
 
       {/* Time Filter Links */}
-      <div className="flex flex-wrap gap-3 mb-8">
+      <div className="flex overflow-x-auto sm:flex-wrap gap-3 mb-8 pb-2 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {timeFilters.map((filter, index) => {
           const isActive = activeFilter === filter.value;
           const href = filter.value === 'explore' ? '/' : `/?filter=${encodeURIComponent(filter.value)}`;
-          
+
           return (
             <Link
               key={index}
               href={href}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                isActive
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${isActive
                   ? "bg-purple-100 text-purple-700 border border-purple-200"
                   : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-              }`}
+                }`}
             >
               {filter.label}
               {filter.label === "Explore" && (
@@ -212,7 +211,7 @@ export default function TopPicksServerContent({
       </div>
 
       {/* Featured Events Grid - Large Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {featuredEvents.map((event) => (
           <LargeEventCard key={event.id} event={event} />
         ))}

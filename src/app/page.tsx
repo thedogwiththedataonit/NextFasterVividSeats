@@ -361,7 +361,7 @@ export default async function Home({searchParams}: {searchParams: Promise<{ [key
             </div>
           </section>
         }>
-          <TopPicksServer location="New York, NY" searchParams={searchParams}/>
+          <TopPicksServer searchParams={searchParams}/>
         </Suspense>
 
         {/* Static Sections - Pre-rendered at build time */}
