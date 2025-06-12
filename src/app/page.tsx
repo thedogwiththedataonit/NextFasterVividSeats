@@ -1,8 +1,8 @@
 import TopPicksServer from "@/components/TopPicksServer"
 import Header from "@/components/Header"
-import { headers } from "next/headers"
 import { Banner } from "@/components/Banner"
 import { Suspense } from "react"
+import Image from "next/image"
 
 // Type definitions based on VividSeats data structure
 interface TopPick {
@@ -179,69 +179,22 @@ const fallbackData: VividSeatsData = {
   ]
 }
 
-// This function runs at build time to generate static data
-async function fetchVividSeatsData(): Promise<VividSeatsData> {
-  try {
-    // Try to fetch live data from VividSeats at build time
-    const response = await fetch('https://www.vividseats.com', {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
-      },
-      // Use force-cache for build time to ensure it's cached
-      cache: 'force-cache'
-    })
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-    
-    const html = await response.text()
-    
-    // Parse the __NEXT_DATA__ JSON from the HTML
-    const nextDataMatch = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/)
-    
-    if (nextDataMatch) {
-      const nextData = JSON.parse(nextDataMatch[1])
-      const homeData = nextData?.props?.pageProps?.initialCmsHomeData
-      
-      if (homeData) {
-        return {
-          top_picks: homeData.top_picks || [],
-          top_sports: homeData.top_sports || [],
-          top_concerts: homeData.top_concerts || [],
-          top_theater: homeData.top_theater || [],
-          blog_article: homeData.blog_article || []
-        }
-      }
-    }
-    
-    // If parsing failed, use fallback
-    return fallbackData
-    
-  } catch (error) {
-    console.error('Error fetching VividSeats data at build time:', error)
-    
-    // Return fallback data on error
-    return fallbackData
-  }
-}
-
-// Static sections component that will be pre-rendered at build time
-async function StaticSections() {
-  const vividSeatsData = await fetchVividSeatsData()
-
+// Static sections component that uses fallback data for true static generation
+function StaticSections() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Sports Section */}
       <section className="mb-16">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Top Sports</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {vividSeatsData.top_sports.map((sport) => (
+          {fallbackData.top_sports.map((sport) => (
             <div key={sport.id} className="group cursor-pointer">
               <div className="relative overflow-hidden rounded-lg aspect-video mb-3">
-                <img
+                <Image
                   src={`https://media.vsstatic.com/image/upload/t_homepage_carousel_card_image_v2,f_auto,q_auto,dpr_1,w_312${sport.external_image_path}`}
                   alt={sport.title}
+                  width={312}
+                  height={176}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
@@ -257,12 +210,14 @@ async function StaticSections() {
       <section className="mb-16">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Top Concerts</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {vividSeatsData.top_concerts.map((concert) => (
+          {fallbackData.top_concerts.map((concert) => (
             <div key={concert.id} className="group cursor-pointer">
               <div className="relative overflow-hidden rounded-lg aspect-video mb-3">
-                <img
+                <Image
                   src={`https://media.vsstatic.com/image/upload/t_homepage_carousel_card_image_v2,f_auto,q_auto,dpr_1,w_312${concert.external_image_path}`}
                   alt={concert.title}
+                  width={312}
+                  height={176}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
@@ -278,12 +233,14 @@ async function StaticSections() {
       <section className="mb-16">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Top Theater</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {vividSeatsData.top_theater.map((show) => (
+          {fallbackData.top_theater.map((show) => (
             <div key={show.id} className="group cursor-pointer">
               <div className="relative overflow-hidden rounded-lg aspect-video mb-3">
-                <img
+                <Image
                   src={`https://media.vsstatic.com/image/upload/t_homepage_carousel_card_image_v2,f_auto,q_auto,dpr_1,w_312${show.external_image_path}`}
                   alt={show.title}
+                  width={312}
+                  height={176}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
@@ -308,7 +265,7 @@ async function StaticSections() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {vividSeatsData.blog_article.map((article) => (
+          {fallbackData.blog_article.map((article) => (
             <div key={article.id} className="bg-blue-50 rounded-lg p-6 hover:bg-blue-100 cursor-pointer transition-colors">
               <div className="text-sm font-medium text-blue-600 mb-2">
                 {article.category_name}
@@ -327,12 +284,8 @@ async function StaticSections() {
   )
 }
 
-export default async function Home() {
-  const headerList = await headers()
-
-  const lat = parseFloat(headerList.get("x-vercel-ip-latitude") || "40.76")
-  const lon = parseFloat(headerList.get("x-vercel-ip-longitude") || "-73.99")
-
+export default async function Home({searchParams}: {searchParams: Promise<{ [key: string]: string | string[] | undefined }>}) {
+  
   return (
     <div className="min-h-screen bg-white">
       <Banner />
@@ -394,8 +347,8 @@ export default async function Home() {
               {/* Remaining Events - Small Cards Skeleton */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {Array.from({ length: 8 }).map((_, index) => (
-                  <div key={`small-${index}`} className="flex items-center space-x-4 p-4 rounded-lg">
-                    <div className="w-16 h-16 rounded-lg bg-gray-200 flex-shrink-0"></div>
+                  <div key={`small-${index}`} className="flex items-center space-x-4 p-4 rounded-lg animate-pulse">
+                    <div className="w-20 h-24 rounded-lg rounded-r-none bg-gray-200 flex-shrink-0"></div>
                     <div className="flex-1 min-w-0 space-y-2">
                       <div className="h-5 bg-gray-200 rounded w-3/4"></div>
                       <div className="h-4 bg-gray-200 rounded w-2/3"></div>
@@ -408,11 +361,7 @@ export default async function Home() {
             </div>
           </section>
         }>
-          <TopPicksServer 
-            location="New York, NY" 
-            latitude={lat}
-            longitude={lon}
-          />
+          <TopPicksServer location="New York, NY" searchParams={searchParams}/>
         </Suspense>
 
         {/* Static Sections - Pre-rendered at build time */}

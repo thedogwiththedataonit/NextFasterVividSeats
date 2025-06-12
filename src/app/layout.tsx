@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import Loading from "./loading";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,9 +17,7 @@ export default function RootLayout({
       <body
         className={`antialiased`}
       >
-        <Suspense fallback={<Loading />}>
           {children}
-        </Suspense>
       </body>
     </html>
   );

@@ -1,5 +1,6 @@
 import { unstable_cache } from 'next/cache';
 import { CACHE_CONFIG, CACHE_TAGS } from './cache-management';
+import { ProductionCard } from '@/types/events';
 
 // TypeScript interfaces for the API response
 interface SubCategory {
@@ -86,7 +87,7 @@ interface Production {
     similarProductionCount: number;
     staticMapUrl: string;
     performers: Performer[];
-    localPrices: any; // Can be null or object, unclear from example
+    localPrices: Record<string, unknown> | null;
 }
 
 interface I18n {
@@ -104,16 +105,7 @@ interface TopPicksResponse {
     i18n: I18n;
 }
 
-interface ProductionCard {
-    id: number;
-    imageUrl: string;
-    title: string;
-    venue: Venue;
-    performers: Performer[];
-    date: string;
-    time: string;
-    similarProductionCount: number;
-}
+
 
 // Performer Assets API interfaces
 interface AssetImage {
