@@ -1,103 +1,496 @@
-import Image from "next/image";
+import TopPicksServer from "@/components/TopPicksServer"
+import Header from "@/components/Header"
+import { headers } from "next/headers"
+import { Banner } from "@/components/Banner"
+import { Suspense } from "react"
 
-export default function Home() {
+// Type definitions based on VividSeats data structure
+interface TopPick {
+  id: number
+  title: string
+  image_url: string
+  link: string
+  external_image_path: string
+}
+
+interface TopEvent {
+  id: number
+  title: string
+  image_url?: string
+  link: string
+  external_image_path: string
+}
+
+interface BlogArticle {
+  id: number
+  title: string
+  category_name: string
+  link: string
+}
+
+interface VividSeatsData {
+  top_picks: TopPick[]
+  top_sports: TopEvent[]
+  top_concerts: TopEvent[]
+  top_theater: TopEvent[]
+  blog_article: BlogArticle[]
+}
+
+// Fallback data based on the actual VividSeats response
+const fallbackData: VividSeatsData = {
+  top_picks: [
+    {
+      id: 1,
+      title: "Beyoncé",
+      image_url: "https://a.vsstatic.com/mobile/app/concerts/beyonce-4.jpg",
+      link: "/beyonce-tickets/performer/4987",
+      external_image_path: ",w_600/f_auto/hero/event/concerts/4987-beyonce/beyonce-tickets-12.jpg"
+    },
+    {
+      id: 17,
+      title: "Kendrick Lamar",
+      image_url: "https://a.vsstatic.com/mobile/app/concerts/kendrick-lamar-5.jpg",
+      link: "/kendrick-lamar-tickets/performer/25626",
+      external_image_path: ",w_600/f_auto/hero/event/concerts/25626-kendrick-lamar/kendrick-lamar-tickets-11.jpg"
+    },
+    {
+      id: 18,
+      title: "Stanley Cup Finals",
+      image_url: "https://a.vsstatic.com/mobile/app/nhl/stanley-cup-finals-2.jpg",
+      link: "/stanley-cup-finals-tickets--sports-nhl-hockey/performer/143164",
+      external_image_path: ",w_600/f_auto/hero/event/sports/143164-nhl-stanley-cup-finals/nhl-stanley-cup-finals-big-tickets-2.jpg"
+    },
+    {
+      id: 33,
+      title: "NBA Finals",
+      image_url: "https://a.vsstatic.com//mobile/app/nba/nba-finals.jpg",
+      link: "/nba-finals-tickets--sports-nba-basketball/performer/2724",
+      external_image_path: ",w_600/f_auto/g_center/hero/event/sports/171-nba-playoffs/nba-finals-big-tickets-3.jpg"
+    }
+  ],
+  top_sports: [
+    {
+      id: 23,
+      title: "WNBA",
+      image_url: "https://a.vsstatic.com/mobile/app/category/wnba-2.jpg",
+      link: "/sports/wnba",
+      external_image_path: ",w_600/f_auto/hero/category/83-wnba/wnba-tickets-1.jpg"
+    },
+    {
+      id: 20,
+      title: "NBA",
+      image_url: "https://a.vsstatic.com/mobile/app/category/nba-basketball-2.jpg",
+      link: "/nba-basketball",
+      external_image_path: ",w_600/f_auto/hero/category/3-nba-basketball/nba-basketball-big-tickets-2.jpg"
+    },
+    {
+      id: 21,
+      title: "NHL",
+      link: "/nhl-hockey",
+      external_image_path: ",w_600/f_auto/hero/category/4-nhl-hockey/nhl-big-tickets-3.jpg"
+    },
+    {
+      id: 22,
+      title: "MLB",
+      image_url: "http://a.vsstatic.com/mobile/app/category/mlb-2.jpg",
+      link: "/mlb-baseball",
+      external_image_path: ",w_600/f_auto/hero/category/2-mlb-baseball/mlb-baseball-tickets-2.jpg"
+    }
+  ],
+  top_concerts: [
+    {
+      id: 28,
+      title: "Coldplay",
+      image_url: "https://a.vsstatic.com/mobile/app/concerts/coldplay.jpg",
+      link: "/coldplay-tickets/performer/1524",
+      external_image_path: ",w_600/f_auto/hero/event/concerts/1524-coldplay/coldplay-tickets-6.jpg"
+    },
+    {
+      id: 30,
+      title: "Tyler the Creator",
+      image_url: "https://a.vsstatic.com/mobile/app/concerts/tyler-the-creator-3.jpg",
+      link: "/tyler-the-creator-tickets/performer/31701",
+      external_image_path: ",w_600/f_auto/hero/event/concerts/31701-tyler-the-creator/tyler-the-creator-tickets-7.jpg"
+    },
+    {
+      id: 34,
+      title: "Sabrina Carpenter",
+      image_url: "https://a.vsstatic.com/mobile/app/concerts/sabrina-carpenter-2.jpg",
+      link: "/sabrina-carpenter-tickets/performer/42658",
+      external_image_path: ",w_600/f_auto/hero/event/concerts/42658-sabrina-carpenter/sabrina-carpenter-tickets-8.jpg"
+    },
+    {
+      id: 35,
+      title: "AC/DC",
+      image_url: "https://a.vsstatic.com/mobile/app/concerts/ac-dc-3.jp",
+      link: "/acdc-tickets/performer/7",
+      external_image_path: ",w_600/f_auto/hero/event/concerts/7-ac-dc/ac-dc-tickets-9.jpg"
+    }
+  ],
+  top_theater: [
+    {
+      id: 24,
+      title: "Shane Gillis",
+      image_url: "https://a.vsstatic.com/mobile/app/category/comedy.jpg",
+      link: "/shane-gillis-tickets--theater-comedy/performer/103286",
+      external_image_path: ",w_600/f_auto/hero/event/comedy/103286-shane-gillis/shane-gillis-tickets-1.jpg"
+    },
+    {
+      id: 25,
+      title: "Sebastian Maniscalco",
+      image_url: "https://a.vsstatic.com/mobile/app/theater/sebastian-maniscalco.jpg",
+      link: "/sebastian-maniscalco-tickets--theater-comedy/performer/29424",
+      external_image_path: ",w_600/f_auto/hero/event/comedy/29424-sebastian-maniscalco/sebastian-maniscalco-tickets-1.jpg"
+    },
+    {
+      id: 26,
+      title: "Hamilton",
+      image_url: "https://a.vsstatic.com/mobile/app/theater/hamilton.jpg",
+      link: "/hamilton-tickets--theater-musical/performer/40710",
+      external_image_path: ",w_600/f_auto/hero/event/theater/40710-hamilton/hamilton-tickets-1.jpg"
+    },
+    {
+      id: 27,
+      title: "Nikki Glaser",
+      image_url: "https://a.vsstatic.com/mobile/app/theater/nikki-glaser-2.jpg",
+      link: "/nikki-glaser-tickets--theater-comedy/performer/35141",
+      external_image_path: ",w_600/f_auto/hero/event/comedy/35141-nikki-glaser/nikki-glaser-tickets-4.jpg"
+    }
+  ],
+  blog_article: [
+    {
+      id: 3,
+      title: "NFL Schedule 2025: Schedule Release Date, Key Dates, Top Games, Opponents",
+      category_name: "NFL",
+      link: "/blog/nfl-schedule-release-date"
+    },
+    {
+      id: 8,
+      title: "Beyonce: The life story you may not know",
+      category_name: "Pop",
+      link: "/blog/beyonce-life-story-you-may-not-know"
+    },
+    {
+      id: 2,
+      title: "Mapping MLS Fandom: Which Counties Support Which Teams?",
+      category_name: "MLS",
+      link: "/blog/most-popular-mls-teams-by-state-county"
+    }
+  ]
+}
+
+// This function runs at build time to generate static data
+async function fetchVividSeatsData(): Promise<VividSeatsData> {
+  try {
+    // Try to fetch live data from VividSeats at build time
+    const response = await fetch('https://www.vividseats.com', {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
+      },
+      // Use force-cache for build time to ensure it's cached
+      cache: 'force-cache'
+    })
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const html = await response.text()
+    
+    // Parse the __NEXT_DATA__ JSON from the HTML
+    const nextDataMatch = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/)
+    
+    if (nextDataMatch) {
+      const nextData = JSON.parse(nextDataMatch[1])
+      const homeData = nextData?.props?.pageProps?.initialCmsHomeData
+      
+      if (homeData) {
+        return {
+          top_picks: homeData.top_picks || [],
+          top_sports: homeData.top_sports || [],
+          top_concerts: homeData.top_concerts || [],
+          top_theater: homeData.top_theater || [],
+          blog_article: homeData.blog_article || []
+        }
+      }
+    }
+    
+    // If parsing failed, use fallback
+    return fallbackData
+    
+  } catch (error) {
+    console.error('Error fetching VividSeats data at build time:', error)
+    
+    // Return fallback data on error
+    return fallbackData
+  }
+}
+
+// Static sections component that will be pre-rendered at build time
+async function StaticSections() {
+  const vividSeatsData = await fetchVividSeatsData()
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Sports Section */}
+      <section className="mb-16">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Top Sports</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {vividSeatsData.top_sports.map((sport) => (
+            <div key={sport.id} className="group cursor-pointer">
+              <div className="relative overflow-hidden rounded-lg aspect-video mb-3">
+                <img
+                  src={`https://media.vsstatic.com/image/upload/t_homepage_carousel_card_image_v2,f_auto,q_auto,dpr_1,w_312${sport.external_image_path}`}
+                  alt={sport.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <h3 className="font-semibold text-gray-900 group-hover:text-purple-600">
+                {sport.title}
+              </h3>
+            </div>
+          ))}
         </div>
+      </section>
+
+      {/* Concerts Section */}
+      <section className="mb-16">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Top Concerts</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {vividSeatsData.top_concerts.map((concert) => (
+            <div key={concert.id} className="group cursor-pointer">
+              <div className="relative overflow-hidden rounded-lg aspect-video mb-3">
+                <img
+                  src={`https://media.vsstatic.com/image/upload/t_homepage_carousel_card_image_v2,f_auto,q_auto,dpr_1,w_312${concert.external_image_path}`}
+                  alt={concert.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <h3 className="font-semibold text-gray-900 group-hover:text-purple-600">
+                {concert.title}
+              </h3>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Theater Section */}
+      <section className="mb-16">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Top Theater</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {vividSeatsData.top_theater.map((show) => (
+            <div key={show.id} className="group cursor-pointer">
+              <div className="relative overflow-hidden rounded-lg aspect-video mb-3">
+                <img
+                  src={`https://media.vsstatic.com/image/upload/t_homepage_carousel_card_image_v2,f_auto,q_auto,dpr_1,w_312${show.external_image_path}`}
+                  alt={show.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <h3 className="font-semibold text-gray-900 group-hover:text-purple-600">
+                {show.title}
+              </h3>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Blog Articles Section */}
+      <section className="mb-16">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold text-gray-900">More Event News</h2>
+          <button className="text-purple-600 font-medium hover:text-purple-700 flex items-center">
+            View All News
+            <svg className="ml-2 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {vividSeatsData.blog_article.map((article) => (
+            <div key={article.id} className="bg-blue-50 rounded-lg p-6 hover:bg-blue-100 cursor-pointer transition-colors">
+              <div className="text-sm font-medium text-blue-600 mb-2">
+                {article.category_name}
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 line-clamp-3">
+                {article.title}
+              </h3>
+              <button className="text-blue-600 font-medium hover:text-blue-700">
+                Read More →
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  )
+}
+
+export default async function Home() {
+  const headerList = await headers()
+
+  const lat = parseFloat(headerList.get("x-vercel-ip-latitude") || "40.76")
+  const lon = parseFloat(headerList.get("x-vercel-ip-longitude") || "-73.99")
+
+  return (
+    <div className="min-h-screen bg-white">
+      <Banner />
+      <Header />
+
+      {/* Main Content */}
+      <main>
+        {/* Top Picks Section - Dynamic with Suspense */}
+        <Suspense fallback={
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="animate-pulse">
+              {/* Header Skeleton */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-4">
+                  <div className="h-9 bg-gray-200 rounded w-80"></div>
+                </div>
+                <div className="h-6 bg-gray-200 rounded w-32"></div>
+              </div>
+
+              {/* Time Filter Buttons Skeleton */}
+              <div className="flex flex-wrap gap-3 mb-8">
+                {[
+                  { width: 'w-20' }, // Explore
+                  { width: 'w-24' }, // Any Dates
+                  { width: 'w-28' }, // This Weekend
+                  { width: 'w-24' }, // This Week
+                  { width: 'w-26' }, // This Month
+                  { width: 'w-26' }, // Next 7 Days
+                  { width: 'w-28' }, // Next 30 Days
+                  { width: 'w-28' }  // Next 60 Days
+                ].map((filter, index) => (
+                  <div
+                    key={index}
+                    className={`h-10 bg-gray-200 rounded-full ${filter.width}`}
+                  ></div>
+                ))}
+              </div>
+
+              {/* Featured Events Grid - Large Cards Skeleton */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <div key={`large-${index}`} className="group cursor-pointer">
+                    <div className="relative overflow-hidden rounded-lg aspect-[4/3] mb-3 bg-gray-200">
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <div className="h-6 bg-gray-300 rounded mb-2 w-3/4"></div>
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-1">
+                            <div className="h-4 bg-gray-300 rounded w-24"></div>
+                            <div className="h-4 bg-gray-300 rounded w-20"></div>
+                          </div>
+                          <div className="h-6 bg-gray-300 rounded-full w-16"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Remaining Events - Small Cards Skeleton */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <div key={`small-${index}`} className="flex items-center space-x-4 p-4 rounded-lg">
+                    <div className="w-16 h-16 rounded-lg bg-gray-200 flex-shrink-0"></div>
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <div className="h-5 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                    <div className="h-3 bg-gray-200 rounded w-12 flex-shrink-0"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        }>
+          <TopPicksServer 
+            location="New York, NY" 
+            latitude={lat}
+            longitude={lon}
+          />
+        </Suspense>
+
+        {/* Static Sections - Pre-rendered at build time */}
+        <StaticSections />
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* Trust Section - Static */}
+      <section className="bg-blue-600 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div>
+              <h3 className="text-xl font-bold mb-4">100% Buyer Guarantee</h3>
+              <p className="text-blue-100">
+                Designed to give you peace of mind.
+              </p>
+              <button className="mt-4 text-white underline hover:text-blue-200">
+                Learn more about our guarantee →
+              </button>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-4">Safe & secure transactions</h3>
+              <p className="text-blue-100">
+                Your private and personal information should remain private and personal.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-4">Full-service customer care</h3>
+              <p className="text-blue-100">
+                You deserve hassle-free assistance from start to finish.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer - Static */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="text-lg font-bold mb-4">Vivid Seats</h3>
+              <p className="text-gray-400 text-sm">
+                A full service national event ticket marketplace
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-3">Sports</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><a href="#" className="hover:text-white">NFL</a></li>
+                <li><a href="#" className="hover:text-white">NBA</a></li>
+                <li><a href="#" className="hover:text-white">MLB</a></li>
+                <li><a href="#" className="hover:text-white">NHL</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-3">Concerts</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><a href="#" className="hover:text-white">Pop</a></li>
+                <li><a href="#" className="hover:text-white">Rock</a></li>
+                <li><a href="#" className="hover:text-white">Country</a></li>
+                <li><a href="#" className="hover:text-white">Hip-Hop</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-3">Theater</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><a href="#" className="hover:text-white">Broadway</a></li>
+                <li><a href="#" className="hover:text-white">Comedy</a></li>
+                <li><a href="#" className="hover:text-white">Family</a></li>
+                <li><a href="#" className="hover:text-white">Musical</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm text-gray-400">
+            <p>&copy; 2024 Vivid Seats LLC. All Rights Reserved.</p>
+          </div>
+        </div>
       </footer>
     </div>
-  );
+  )
 }
