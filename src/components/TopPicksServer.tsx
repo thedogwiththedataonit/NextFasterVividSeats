@@ -94,7 +94,7 @@ export default async function TopPicksServer({
   const lat = parseFloat(headerList.get("x-vercel-ip-latitude") || "40.76");
   const lon = parseFloat(headerList.get("x-vercel-ip-longitude") || "-73.99");
   const city = headerList.get("x-vercel-ip-city") || "New York"
-  const state = headerList.get("x-vercel-ip-state") || "NY";
+  const state = headerList.get("x-vercel-ip-state") || headerList.get("x-vercel-ip-country") || "NY"
   const location = `${city}, ${state}`
 
   // Handle "explore" filter as "Any Dates" for data fetching
