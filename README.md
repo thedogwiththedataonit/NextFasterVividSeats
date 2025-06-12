@@ -244,30 +244,6 @@ src/
     └── events.ts                  # TypeScript type definitions
 ```
 
-## 🔧 Configuration
-
-### Environment Variables
-```bash
-# Optional: Custom API configuration
-VIVID_SEATS_BASE_URL=https://www.vividseats.com/hermes/api/v1
-DEFAULT_RADIUS=80450
-DEFAULT_PAGE_SIZE=12
-
-# Fallback coordinates (NYC)
-FALLBACK_LAT=40.76
-FALLBACK_LON=-73.99
-```
-
-## 🚀 Deployment
-
-### Vercel Deployment
-```bash
-# Deploy to Vercel (recommended)
-vercel --prod
-
-# Or connect GitHub repository for auto-deployment
-```
-
 ### Environment Setup
 - **Geolocation**: Automatic via Vercel headers
 - **Edge Functions**: Enabled by default
@@ -300,18 +276,6 @@ vercel --prod
 - **Largest Contentful Paint**: <2.5s
 - **Time to Interactive**: <3.5s
 - **Cumulative Layout Shift**: <0.1
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is for educational and demonstration purposes. VividSeats is a trademark of Vivid Seats LLC.
 
 ---
 
