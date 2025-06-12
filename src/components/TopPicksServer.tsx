@@ -95,8 +95,8 @@ export default async function TopPicksServer({
   const lon = parseFloat(headerList.get("x-vercel-ip-longitude") || "-73.99");
   const city = headerList.get("x-vercel-ip-city") || "New York"
   const state = headerList.get("x-vercel-ip-state") || headerList.get("x-vercel-ip-country") || "NY"
-  //make sure city and space replace with %20
-  const location = `${city.replace(" ", "%20")}, ${state.replace(" ", "%20")}`
+  //make sure city and space replace  %20 with a space
+  const location = `${city.replace("%20", " ")}, ${state.replace("%20", " ")}`
   
 
   // Handle "explore" filter as "Any Dates" for data fetching
