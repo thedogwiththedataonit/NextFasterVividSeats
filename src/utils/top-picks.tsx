@@ -175,6 +175,7 @@ const getCachedTopPicks = unstable_cache(
                 id: item.id,
                 imageUrl: "https://media.vsstatic.com/image/upload/t_homepage_carousel_card_image_v2,f_auto,q_auto,dpr_1,w_312/" + externalImage?.path || "",
                 title: item.name,
+                webPath: item.webPath,
                 venue: item.venue,
                 performers: item.performers,
                 date: item.localDate,

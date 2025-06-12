@@ -213,14 +213,18 @@ export default function TopPicksServerContent({
       {/* Featured Events Grid - Large Cards */}
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {featuredEvents.map((event) => (
-          <LargeEventCard key={event.id} event={event} />
+          <Link href={`https://vividseats.com${event.webPath}`} key={event.id}>
+            <LargeEventCard key={event.id} event={event} />
+          </Link>
         ))}
       </div>
 
       {/* Remaining Events - Small Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {remainingEvents.map((event) => (
-          <SmallEventCard key={event.id} event={event} />
+          <Link href={`https://vividseats.com${event.webPath}`} key={event.id}>
+            <SmallEventCard key={event.id} event={event} />
+          </Link>
         ))}
       </div>
     </section>

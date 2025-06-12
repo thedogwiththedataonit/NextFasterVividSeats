@@ -2,6 +2,7 @@ export interface ProductionCard {
   id: number;
   imageUrl: string;
   title: string;
+  webPath: string;
   venue: {
     id: number;
     name: string;
